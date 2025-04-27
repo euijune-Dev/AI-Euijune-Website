@@ -20,8 +20,8 @@
       background: white;
       padding: 15px;
       display: flex;
-      flex-direction: column;
       align-items: center;
+      justify-content: space-between;
       box-shadow: 0 2px 5px rgba(0,0,0,0.1);
     }
 
@@ -45,7 +45,7 @@
       flex-direction: column;
       gap: 15px;
       justify-content: flex-start;
-      height: 80%;
+      height: 80%; /* 모바일에서 화면에 맞게 채팅창 크기 조정 */
     }
 
     .message {
@@ -66,14 +66,14 @@
       align-self: flex-end;
       background-color: #c8c8cc;
       color: black;
-      border-radius: 15px 15px 0 15px;
+      border-radius: 15px 15px 0 15px; /* 오른쪽 말풍선 스타일 */
     }
 
     .ai {
       align-self: flex-start;
       background-color: #e5e5ea;
       color: black;
-      border-radius: 15px 15px 15px 0;
+      border-radius: 15px 15px 15px 0; /* 왼쪽 말풍선 스타일 */
     }
 
     #inputArea {
@@ -105,29 +105,71 @@
 
     #darkModeToggle {
       cursor: pointer;
-      margin-bottom: 10px;
     }
 
-    #viewInfoButton {
-      cursor: pointer;
-      font-size: 20px;
+    .dots span {
+      font-size: 24px;
+      opacity: 0.2;
+      animation: blink 1.4s infinite;
+      margin: 0 1px;
     }
 
-    #hiddenInfo {
-      display: none;
-      margin: 20px;
-      padding: 10px;
-      background-color: #e5e5ea;
-      border-radius: 10px;
-      box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+    .dots span:nth-child(2) { animation-delay: 0.2s; }
+    .dots span:nth-child(3) { animation-delay: 0.4s; }
+
+    @keyframes blink {
+      0% { opacity: 0.2; }
+      20% { opacity: 1; }
+      100% { opacity: 0.2; }
     }
 
-    #errorBanner {
-      display: none;
-      background-color: #f44336;
+    @keyframes fadeInUp {
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* 다크모드 스타일 */
+    body.dark-mode {
+      background-color: #333;
       color: white;
+    }
+
+    header.dark-mode {
+      background-color: #444;
+      color: white;
+    }
+
+    #inputArea.dark-mode {
+      background-color: #555;
+    }
+
+    /* 모바일 스타일 */
+    @media (max-width: 600px) {
+      header h1 {
+        font-size: 20px;
+      }
+      #userInput {
+        font-size: 14px;
+      }
+      #sendButton {
+        font-size: 14px;
+      }
+      .message {
+        font-size: 14px;
+      }
+      #chatbox {
+        gap: 10px;
+        padding: 15px;
+      }
+    }
+
+    #footerText {
+      font-size: 12px;
+      color: #777;
       text-align: center;
-      padding: 10px;
+      margin-top: 10px;
     }
 
   </style>
@@ -136,10 +178,7 @@
   <header>
     <h1>AI 의준</h1>
     <button id="darkModeToggle">🌙</button>
-    <button id="viewInfoButton">🔒</button>
   </header>
-  <div id="errorBanner">알맞지 않은 명령어입니다.</div>
-
   <div id="chatbox"></div>
   <div id="inputArea">
     <input type="text" id="userInput" placeholder="메시지를 입력하세요..." disabled />
@@ -148,43 +187,22 @@
 
   <div id="footerText">Made by Euijune Kim</div>
 
-  <div id="hiddenInfo">
-    <h2>접속자 정보</h2>
-    <table id="visitorTable">
-      <tr><th>IP</th><th>이름</th><th>전화번호</th><th>위치</th><th>기기</th><th>브라우저</th><th>운영체제</th><th>시간</th></tr>
-    </table>
-  </div>
-
   <script>
     const chatbox = document.getElementById('chatbox');
     const userInput = document.getElementById('userInput');
     const sendButton = document.getElementById('sendButton');
     const darkModeToggle = document.getElementById('darkModeToggle');
-    const errorBanner = document.getElementById('errorBanner');
-    const viewInfoButton = document.getElementById('viewInfoButton');
-    const hiddenInfo = document.getElementById('hiddenInfo');
-    const visitorTable = document.getElementById('visitorTable');
-
-    let visitors = [];
 
     // 채팅 기록 초기화
     localStorage.removeItem('chatHistory');
     chatbox.innerHTML = '';
 
     let username = localStorage.getItem('username');
-    let accessTime = localStorage.getItem('accessTime');
-
-    // 사용자 이름과 접속 시간 초기화
     if (!username) {
       username = prompt('당신의 이름을 입력해주세요:') || '사용자';
       localStorage.setItem('username', username);
-      accessTime = new Date().toLocaleString();
-      localStorage.setItem('accessTime', accessTime);
     }
 
-    document.getElementById('footerText').innerHTML += `<br>접속 시간: ${accessTime}`;
-
-    // 다크모드 토글
     darkModeToggle.addEventListener('click', () => {
       document.body.classList.toggle('dark-mode');
       document.querySelector('header').classList.toggle('dark-mode');
@@ -199,7 +217,6 @@
       }
     });
 
-    // 사이트 로드 시 AI 인사말
     document.addEventListener('DOMContentLoaded', () => {
       typeWriter(`안녕하세요! AI 의준입니다. 무엇을 도와드릴까요? (AI 의준은 실수가 많습니다. 많은 양해 바랍니다. -의준)`, 50, () => {
         userInput.disabled = false;
@@ -244,7 +261,7 @@
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': 'Bearer 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'
+          'Authorization': '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'
         },
         body: JSON.stringify({
           model: 'llama3-70b-8192',
@@ -273,31 +290,6 @@
 
       localStorage.setItem('chatHistory', chatbox.innerHTML);
       chatbox.scrollTop = chatbox.scrollHeight;
-
-      // IP와 위치 가져오기
-      const ipResponse = await fetch('http://ip-api.com/json');
-      const ipData = await ipResponse.json();
-      const location = `${ipData.city}, ${ipData.regionName}, ${ipData.country}`;
-
-      // 기기 정보 가져오기
-      const device = getDeviceType();
-
-      // 브라우저 정보 가져오기
-      const browser = getBrowserInfo();
-
-      // 운영체제 정보 가져오기
-      const os = getOperatingSystem();
-
-      visitors.push({
-        ip: ipData.query,
-        name: username,
-        phone: '전화번호 없음',
-        location: location,
-        device: device,
-        browser: browser,
-        os: os,
-        time: new Date().toLocaleString()
-      });
     }
 
     function appendMessage(text, sender) {
@@ -305,73 +297,6 @@
       message.className = `message ${sender}`;
       message.innerText = text;
       chatbox.appendChild(message);
-    }
-
-    function getDeviceType() {
-      const userAgent = navigator.userAgent.toLowerCase();
-
-      if (/mobile|iphone|ipod|android/.test(userAgent)) {
-        return '휴대폰';
-      } else if (/laptop|mac|windows|chrome os/.test(userAgent)) {
-        if (/macintosh/.test(userAgent)) {
-          return 'MacBook';
-        } else if (/windows/.test(userAgent)) {
-          return 'Windows PC';
-        } else {
-          return '데스크탑'; // Linux 등
-        }
-      } else {
-        return '기타';
-      }
-    }
-
-    function getBrowserInfo() {
-      const userAgent = navigator.userAgent.toLowerCase();
-      if (userAgent.indexOf('chrome') > -1) return 'Chrome';
-      if (userAgent.indexOf('firefox') > -1) return 'Firefox';
-      if (userAgent.indexOf('safari') > -1) return 'Safari';
-      if (userAgent.indexOf('edge') > -1) return 'Edge';
-      return '기타';
-    }
-
-    function getOperatingSystem() {
-      const userAgent = navigator.userAgent.toLowerCase();
-      if (/windows/.test(userAgent)) return 'Windows';
-      if (/macintosh/.test(userAgent)) return 'macOS';
-      if (/linux/.test(userAgent)) return 'Linux';
-      if (/android/.test(userAgent)) return 'Android';
-      if (/iphone|ipad/.test(userAgent)) return 'iOS';
-      return '기타';
-    }
-
-    // 자물쇠 버튼 클릭 시, 숨겨진 창 열기
-    viewInfoButton.addEventListener('click', () => {
-      const userCommand = prompt('명령어를 입력하세요:');
-      if (userCommand === '칠성사이다') {
-        hiddenInfo.style.display = 'block';
-        displayVisitorInfo();
-      } else {
-        errorBanner.style.display = 'block';
-        setTimeout(() => { errorBanner.style.display = 'none'; }, 3000);
-      }
-    });
-
-    function displayVisitorInfo() {
-      const table = visitorTable;
-      visitors.forEach(visitor => {
-        const row = document.createElement('tr');
-        row.innerHTML = `
-          <td>${visitor.ip}</td>
-          <td>${visitor.name}</td>
-          <td>${visitor.phone}</td>
-          <td>${visitor.location}</td>
-          <td>${visitor.device}</td>
-          <td>${visitor.browser}</td>
-          <td>${visitor.os}</td>
-          <td>${visitor.time}</td>
-        `;
-        table.appendChild(row);
-      });
     }
   </script>
 </body>
