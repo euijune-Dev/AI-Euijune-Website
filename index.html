@@ -216,10 +216,16 @@
     chatbox.innerHTML = '';
 
     let username = localStorage.getItem('username');
+    let accessTime = localStorage.getItem('accessTime');  // 접속 시간 저장
     if (!username) {
       username = prompt('당신의 이름을 입력해주세요:') || '사용자';
       localStorage.setItem('username', username);
+      accessTime = new Date().toLocaleString();  // 접속 시간 기록
+      localStorage.setItem('accessTime', accessTime);
     }
+
+    // 접속 시간 표시
+    document.getElementById('footerText').innerHTML += `<br>접속 시간: ${accessTime}`;
 
     darkModeToggle.addEventListener('click', () => {
       document.body.classList.toggle('dark-mode');
