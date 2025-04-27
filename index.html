@@ -15,6 +15,7 @@
       background-color: #f2f2f2;
       transition: background 0.5s ease;
     }
+
     header {
       background: white;
       padding: 15px;
@@ -23,23 +24,30 @@
       justify-content: space-between;
       box-shadow: 0 2px 5px rgba(0,0,0,0.1);
     }
+
     header h1 {
       font-size: 24px;
       color: #333;
       display: flex;
       align-items: center;
     }
+
     header h1::before {
       content: '🤖';
       margin-right: 10px;
     }
+
     #chatbox {
       flex: 1;
       overflow-y: auto;
       padding: 20px;
       display: flex;
       flex-direction: column;
+      gap: 15px;
+      justify-content: flex-start;
+      height: 80%; /* 모바일에서 화면에 맞게 채팅창 크기 조정 */
     }
+
     .message {
       max-width: 70%;
       padding: 10px 15px;
@@ -53,22 +61,28 @@
       transform: translateY(10px);
       animation: fadeInUp 0.4s forwards;
     }
+
     .user {
       align-self: flex-end;
       background-color: #c8c8cc;
       color: black;
+      border-radius: 15px 15px 0 15px; /* 오른쪽 말풍선 스타일 */
     }
+
     .ai {
       align-self: flex-start;
       background-color: #e5e5ea;
       color: black;
+      border-radius: 15px 15px 15px 0; /* 왼쪽 말풍선 스타일 */
     }
+
     #inputArea {
       display: flex;
       padding: 10px;
       background-color: white;
       border-top: 1px solid #ccc;
     }
+
     #userInput {
       flex: 1;
       padding: 10px;
@@ -77,6 +91,7 @@
       font-size: 16px;
       outline: none;
     }
+
     #sendButton {
       margin-left: 10px;
       padding: 10px 20px;
@@ -87,15 +102,18 @@
       font-size: 16px;
       cursor: pointer;
     }
+
     #darkModeToggle {
       cursor: pointer;
     }
+
     .dots span {
       font-size: 24px;
       opacity: 0.2;
       animation: blink 1.4s infinite;
       margin: 0 1px;
     }
+
     .dots span:nth-child(2) { animation-delay: 0.2s; }
     .dots span:nth-child(3) { animation-delay: 0.4s; }
 
@@ -114,19 +132,20 @@
 
     /* 다크모드 스타일 */
     body.dark-mode {
-      background-color: #333; /* 어두운 배경 */
-      color: white; /* 글자 색 */
+      background-color: #333;
+      color: white;
     }
 
     header.dark-mode {
-      background-color: #444; /* 어두운 헤더 배경 */
+      background-color: #444;
       color: white;
     }
 
     #inputArea.dark-mode {
-      background-color: #555; /* 어두운 입력란 배경 */
+      background-color: #555;
     }
 
+    /* 모바일 스타일 */
     @media (max-width: 600px) {
       header h1 {
         font-size: 20px;
@@ -139,6 +158,10 @@
       }
       .message {
         font-size: 14px;
+      }
+      #chatbox {
+        gap: 10px;
+        padding: 15px;
       }
     }
 
@@ -171,8 +194,8 @@
     const darkModeToggle = document.getElementById('darkModeToggle');
 
     // 채팅 기록 초기화
-    localStorage.removeItem('chatHistory');  // 페이지 접속 시마다 채팅 기록 초기화
-    chatbox.innerHTML = '';  // 화면의 채팅 기록 초기화
+    localStorage.removeItem('chatHistory');
+    chatbox.innerHTML = '';
 
     let username = localStorage.getItem('username');
     if (!username) {
@@ -265,7 +288,7 @@
         appendMessage('죄송합니다. 오류가 발생했어요.', 'ai');
       }
 
-      localStorage.setItem('chatHistory', chatbox.innerHTML);  // 채팅 기록 저장
+      localStorage.setItem('chatHistory', chatbox.innerHTML);
       chatbox.scrollTop = chatbox.scrollHeight;
     }
 
